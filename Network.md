@@ -53,7 +53,6 @@
   - **Management VLAN = 10**
   - SSID1: VLAN 10 (LAN)
   - SSID2: VLAN 30 (UNTRUSTED)
-- AX3000 router is gone; only EAP225s remain.
 
 ## WireGuard Behavior
 - Split tunnel confirmed:
