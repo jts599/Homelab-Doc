@@ -65,11 +65,5 @@
 - Untrusted VLAN set to use external DNS (1.1.1.1 / 8.8.8.8) via ISC DHCP to bypass adblock.
 - Devices in VLAN30 will not resolve internal `.home` domains — expected behavior.
 
-## Outstanding Work / Next Steps
-- Server: Proxmox setup with VLAN-aware bridges (vmbr10, vmbr20).
-- Create `dmz-apps` VM (Caddy + Authelia + Cloudflare Tunnel).
-- Create `k3s-lan` VM in VLAN10.
-- Additional switch configuration as needed.
-
 # Summary
 This network is a multi-VLAN OPNsense deployment with WireGuard remote access, Omada EAP225 APs using VLANs for SSIDs, and TP-Link SG108E switches acting as VLAN distribution points. The main recent issue was iDRAC on a trunk port (fixed by assigning untagged VLAN10). WireGuard, DHCP, DNS, and VLAN routing are all functioning correctly.
