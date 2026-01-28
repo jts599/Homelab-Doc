@@ -156,3 +156,20 @@ services:
     ports:
       - 6767:6767
     restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    restart: unless-stopped
+    network_mode: service:gluetun
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - UMASK=${UMASK}
+      - TZ=${TZ}
+    volumes:
+      - ${SABNZBD_CONFIG}:/config
+      - ${USENET_DOWNLOADS}:/downloads
+      - ${USENET_INCOMPLETE}:/incomplete-downloads
