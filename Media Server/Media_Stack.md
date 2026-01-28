@@ -30,14 +30,18 @@ The VM itself:
 
 Docker is used inside the Media VM to isolate services.
 
-High-level layout:
+For detailed information about each service, including access ports and functionality, see [Services.md](Services.md).
+
+High-level service architecture:
 
     Media VM (VLAN 10)
-    ├── Plex
-    ├── Radarr
-    ├── Sonarr
-    ├── qBittorrent
-    ├── Gluetun (VPN container)
+    ├── Plex (Media Server)
+    ├── *arr Stack (Radarr, Sonarr, Prowlarr, Bazarr)
+    ├── Overseerr (Request Management)
+    ├── qBittorrent (Download Client)
+    ├── Gluetun (VPN Gateway)
+    ├── Bookshelf (Ebook Library)
+    ├── Watchtower (Auto-updater)
     └── Shared media volumes
 
 ---
@@ -64,11 +68,12 @@ Only qBittorrent is routed through the VPN.
 
 ## Non-VPN Services
 
-The following services use the Media VM’s normal network stack:
-- Plex
-- Radarr
-- Sonarr
-- Any other media management tools
+Most services use the Media VM's normal network stack (see [Services.md](Services.md) for complete list):
+- Plex (Media Server)
+- Radarr, Sonarr, Prowlarr, Bazarr (*arr Stack)
+- Overseerr (Request Management)
+- Bookshelf (Ebook Library)
+- Watchtower (Auto-updater)
 
 This ensures:
 - Local LAN performance
@@ -79,18 +84,23 @@ This ensures:
 
 ## Service Communication
 
-- Radarr/Sonarr communicate with qBittorrent via the Gluetun network namespace
+- *arr services (Radarr/Sonarr) communicate with qBittorrent via the Gluetun network namespace
+- Prowlarr manages indexers for the *arr stack
+- Overseerr integrates with Radarr/Sonarr for request handling
+- Bazarr fetches subtitles based on *arr activity
 - File access is handled through shared volumes
 - Hardlinks / atomic moves are used where possible to avoid unnecessary disk I/O
+
+For service-specific details and access information, refer to [Services.md](Services.md).
 
 ---
 
 ## Access Control
 
-- Service web UIs are **LAN-only**
+- Service web UIs are **LAN-only** (see [Services.md](Services.md) for ports)
 - No direct exposure to VLAN 20
 - Optional access via nginx, bound only to the VLAN 10 IP
-- qBittorrent UI is not exposed via nginx
+- qBittorrent UI is not exposed via nginx for security
 
 ---
 
