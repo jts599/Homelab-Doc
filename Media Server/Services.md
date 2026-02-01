@@ -50,4 +50,4 @@ Access: No web interface (background service)
 
 ## Browser
 Chromium browser accessible via web interface for remote browsing tasks.  
-Access: [10.0.10.203:3000](http://10.0.10.203:3000) (HTTP) | [10.0.10.203:3001](http://10.0.10.203:3001) (HTTPS)
+Access: [10.0.10.203:3000](http://10.0.10.203:3000) (HTTP) | [10.0.10.203:3001](https://10.0.10.203:3001) (HTTPS)
