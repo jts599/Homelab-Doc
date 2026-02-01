@@ -1,5 +1,14 @@
 version: "3.8"
 
+networks:
+  media-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
 services:
 
   plex:
@@ -36,8 +45,17 @@ services:
       - SERVER_CITIES=${VPN_CITIES}
       - SERVER_COUNTRIES=${VPN_COUNTRIES}
       - FIREWALL=on
+      - FIREWALL_VPN_INPUT_PORTS=${QBIT_WEBUI_PORT},${SABNZBD_WEBUI_PORT},${FLARESOLVERR_PORT:-8191}
+      - FIREWALL_INPUT_PORTS=${QBIT_WEBUI_PORT},${SABNZBD_WEBUI_PORT},${FLARESOLVERR_PORT:-8191}
+      - DNS=1.1.1.1,1.0.0.1
     volumes:
       - ${GLUETUN_CONFIG}:/gluetun
+    ports:
+      - ${QBIT_WEBUI_PORT}:${QBIT_WEBUI_PORT}
+      - ${SABNZBD_WEBUI_PORT}:${SABNZBD_WEBUI_PORT}  # SABnzbd WebUI
+      - ${FLARESOLVERR_PORT:-8191}:${FLARESOLVERR_PORT:-8191}  # FlareSolverr
+    networks:
+      - media-network
 
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -71,6 +89,8 @@ services:
     ports:
       - 8989:8989
     restart: unless-stopped
+    networks:
+      - media-network
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -87,6 +107,8 @@ services:
     ports:
       - 7878:7878
     restart: unless-stopped
+    networks:
+      - media-network
 
   watchtower:
     image: containrrr/watchtower:latest
@@ -111,6 +133,8 @@ services:
     ports:
       - 9696:9696
     restart: unless-stopped
+    networks:
+      - media-network
 
   overseerr:
     image: lscr.io/linuxserver/overseerr:latest
@@ -125,6 +149,8 @@ services:
     ports:
       - 5055:5055
     restart: unless-stopped
+    networks:
+      - media-network
 
   bookshelf:
     image: ghcr.io/pennydreadful/bookshelf:hardcover
@@ -140,6 +166,8 @@ services:
     ports:
       - 8083:8083
     restart: unless-stopped
+    networks:
+      - media-network
 
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -156,32 +184,37 @@ services:
     ports:
       - 6767:6767
     restart: unless-stopped
+    networks:
+      - media-network
 
-  sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:latest
-    container_name: sabnzbd
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
     restart: unless-stopped
     network_mode: service:gluetun
     depends_on:
       - gluetun
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - UMASK=${UMASK}
-      - TZ=${TZ}
-    volumes:
-      - ${SABNZBD_CONFIG}:/config
-      - ${USENET_DOWNLOADS}:/downloads
-      - ${USENET_INCOMPLETE}:/incomplete-downloads
-
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    environment:
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - LOG_HTML=${LOG_HTML:-false}
       - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
       - TZ=${TZ}
+
+  browser:
+    image: lscr.io/linuxserver/chromium:latest
+    container_name: browser
+    security_opt:
+      - seccomp:unconfined #optional
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - CHROME_CLI=--no-sandbox --disable-gpu --disable-web-security --ignore-ssl-errors --ignore-certificate-errors --disable-features=VizDisplayCompositor --allow-running-insecure-content --disable-extensions
+    volumes:
+      - ${BROWSER_CONFIG:-./browser-config}:/config
     ports:
-      - ${FLARESOLVERR_PORT:-8191}:8191
+      - 3000:3000
+      - 3001:3001
     restart: unless-stopped
+    networks:
+      - media-network
