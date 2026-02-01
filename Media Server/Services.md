@@ -43,3 +43,11 @@ Access: [10.0.10.203:8083](http://10.0.10.203:8083)
 ## Bazarr
 Subtitle management tool that automatically downloads subtitles for movies and TV shows.  
 Access: [10.0.10.203:6767](http://10.0.10.203:6767)
+
+## FlareSolverr
+Proxy server to bypass Cloudflare protection on indexer sites (runs through VPN).  
+Access: No web interface (background service)
+
+## Browser
+Chromium browser accessible via web interface for remote browsing tasks.  
+Access: [10.0.10.203:3000](http://10.0.10.203:3000) (HTTP) | [10.0.10.203:3001](http://10.0.10.203:3001) (HTTPS)
