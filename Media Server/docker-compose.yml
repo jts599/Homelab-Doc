@@ -3,8 +3,6 @@ version: "3.8"
 networks:
   media-network:
     driver: bridge
-    driver_opts:
-      com.docker.network.bridge.enable_ip_masquerade: "false"
     ipam:
       config:
         - subnet: 172.20.0.0/24
@@ -36,6 +34,8 @@ services:
     container_name: gluetun
     cap_add:
       - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     restart: unless-stopped
     environment:
       - TZ=${TZ}
@@ -46,13 +46,16 @@ services:
       - FIREWALL=on
       - FIREWALL_VPN_INPUT_PORTS=${QBIT_WEBUI_PORT},${SABNZBD_WEBUI_PORT},${FLARESOLVERR_PORT:-8191}
       - FIREWALL_INPUT_PORTS=${QBIT_WEBUI_PORT},${SABNZBD_WEBUI_PORT},${FLARESOLVERR_PORT:-8191}
-      - DNS=1.1.1.1,1.0.0.1
+      - FIREWALL_OUTBOUND_SUBNETS=172.20.0.0/24
+      - DOT_PROVIDERS=cloudflare
+      - DOT_CACHING=on
+      - HEALTH_VPN_DURATION_INITIAL=30s
     volumes:
       - ${GLUETUN_CONFIG}:/gluetun
     ports:
       - ${QBIT_WEBUI_PORT}:${QBIT_WEBUI_PORT}
-      - ${SABNZBD_WEBUI_PORT}:${SABNZBD_WEBUI_PORT}  # SABnzbd WebUI
-      - ${FLARESOLVERR_PORT:-8191}:${FLARESOLVERR_PORT:-8191}  # FlareSolverr
+      - ${SABNZBD_WEBUI_PORT}:${SABNZBD_WEBUI_PORT}
+      - ${FLARESOLVERR_PORT:-8191}:${FLARESOLVERR_PORT:-8191}
     networks:
       - media-network
 
